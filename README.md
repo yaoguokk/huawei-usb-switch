@@ -100,29 +100,51 @@ inet 192.168.8.133, 默认路由 → en11, 外网 ping 通
 安装程序会：
 
 1. 释放 `~/bin/huawei-switch`（静态链接，无外部依赖）
-2. 安装自动检测脚本和切换窗口脚本
-3. 用本机实际路径生成并加载 LaunchAgent
-4. 询问是否启用 Touch ID for sudo（可跳过）
+2. 安装切换窗口脚本 `~/bin/huawei-usb-prompt.command`
+3. 询问是否启用 Touch ID for sudo（推荐，可跳过）
+4. 询问是否开启自动弹窗（可选，**默认不开**）
 
-### 日常使用
+### 日常使用（默认：手动模式）
 
-**插上设备 → 几秒内自动弹出终端窗口 → 按一下指纹（或输密码）→ 完事。**
+**插上设备 → 双击切换窗口脚本 → 按一下指纹 → 完事。**
 
-| 时刻 | 现象 |
-|---|---|
-| 插上后约 1 秒 | 桌面出现 `MobileWiFi` 光盘图标 |
-| 随后几秒内 | 自动弹出终端窗口，提示 `Touch ID for sudo:` |
-| 按指纹后 | 显示 `✅ 完成，USB 网络已就绪` |
-| 6 秒后 | 窗口自动关闭，USB 网络可用 |
+```
+~/bin/huawei-usb-prompt.command
+```
 
-> 光盘图标一闪而过是**正常的**，说明切换成功了。
+建议把它**拖到 Dock** 里，以后插上设备点一下就行，不用去文件夹里找。
 
-### 手动使用
+成功后终端窗口里会显示网卡和 IP：
 
-不用自动弹窗的话，直接跑：
+```
+✅ 完成，USB 网络已就绪：
+    inet 192.168.8.133 netmask 0xffffff00 broadcast 192.168.8.255
+    status: active
+```
+
+也可以一条命令搞定，不用找文件：
 
 ```bash
 sudo ~/bin/huawei-switch
+```
+
+### 自动弹窗（可选）
+
+安装时选择开启即可。开启后：
+
+**插上设备 → 几秒内自动弹出终端窗口 → 按一下指纹 → 完事。**
+
+由用户级 LaunchAgent 实现（`~/Library/LaunchAgents/local.huawei-usb.plist`），
+监听 `/Volumes` 变化，并每 30 秒兜底轮询；只在设备处于存储模式、
+且本次插入尚未提示过时才弹窗，不会反复骚扰。
+
+> 光盘图标一闪而过是**正常的**，说明切换成功了。
+
+关闭：
+
+```bash
+launchctl bootout gui/$(id -u)/local.huawei-usb
+rm -f ~/Library/LaunchAgents/local.huawei-usb.plist
 ```
 
 ## 注意事项
@@ -142,8 +164,9 @@ sudo ~/bin/huawei-switch
   的问题可能不存在（理论上更简单），但未实测。
 - **Intel Mac 未验证。** 安装包内置的是 arm64 二进制；非 arm64 会回退到从源码编译，
   需要 Xcode Command Line Tools + `brew install libusb`。
-- **launchd 自动弹窗这条链未充分验证** —— 核心切换功能已实测通过，
+- **可选的自动弹窗模式未充分验证** —— 核心切换功能已实测通过，
   但"LaunchAgent 自动拉起 Terminal"这一环在不同 macOS 版本上行为可能不同。
+  因此安装包**默认不开启**它，手动双击模式是经过验证的主路径。
 - 设备 Web 界面（`192.168.8.1`）**没有** USB 模式开关。
 
 ## 卸载
