@@ -169,6 +169,48 @@ rm -f ~/Library/LaunchAgents/local.huawei-usb.plist
   因此安装包**默认不开启**它，手动双击模式是经过验证的主路径。
 - 设备 Web 界面（`192.168.8.1`）**没有** USB 模式开关。
 
+## 常见问题
+
+### 双击 `.command` 报「没有正确的访问权限」
+
+从 GitHub 网页下载**单个文件**（Raw 按钮 / 右键下载）走的是 HTTP，而
+**HTTP 不传文件权限**，可执行位会丢失；经过 FAT/exFAT 格式的 U 盘同理。
+
+两种解法：
+
+```bash
+# ① 补上可执行位，之后就能双击了
+chmod +x ~/Downloads/安装华为USB网络.command
+
+# ② 或者直接用 bash 跑，不需要可执行位
+bash ~/Downloads/安装华为USB网络.command
+```
+
+**会保留权限的传输方式**：`git clone`、GitHub 的 **Download ZIP**、
+AirDrop、HFS+/APFS 格式的 U 盘。
+
+### 之前装过自动弹窗，想改回手动
+
+双击 `关闭自动弹窗.command`（或 `bash 关闭自动弹窗.command`）。
+它是用户级的，**不需要 root**，会卸载 LaunchAgent、删除守卫脚本和状态文件，
+保留切换程序和 Touch ID 设置。
+
+### 插上设备后没有任何新网卡出现
+
+先确认设备是不是还在存储模式：
+
+```bash
+networksetup -listallhardwareports | grep -A1 HUAWEI_MOBILE
+```
+
+**没有输出**说明还没切换——双击切换脚本即可。切换成功后这里会显示
+`Hardware Port: HUAWEI_MOBILE` 及其设备名（如 `en11`）。
+
+### 切换时提示 claim 失败 / out of resources
+
+说明命令跑在了错误的执行上下文里。**必须在终端（GUI 会话）里 `sudo`**，
+不能用 `osascript -e '... with administrator privileges'`。详见上文「第三层」。
+
 ## 卸载
 
 ```bash
@@ -188,6 +230,7 @@ sudo rm -f /etc/pam.d/sudo_local
 | `tryswitch.c` | 切换程序源码（核心，可自行审查/编译） |
 | `安装华为USB网络.command` | 一键安装包（内嵌静态链接的 arm64 二进制） |
 | `切换USB网络.command` | 单独的手动切换脚本 |
+| `关闭自动弹窗.command` | 从自动弹窗模式改回手动（用户级，不需要 root） |
 | `12d1:1f01` | usb_modeswitch 设备配置（参考） |
 
 自行编译：
