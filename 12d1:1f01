@@ -1,0 +1,6 @@
+# Huawei 零CD存储模式 -> HiLink 网络模式
+# 来源: usb-modeswitch-data/usb_modeswitch.d/12d1:1f01
+TargetVendor=0x12d1
+TargetProduct=0x14db
+MessageContent="55534243123456780000000000000a11062000000000000100000000000000"
+NoDriverLoading=1

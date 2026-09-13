@@ -1,0 +1,22 @@
+# ── macOS 元数据 ─────────────────────────────────────────────
+.DS_Store
+._*
+.VolumeIcon.icns
+
+# ── 华为专有驱动（版权原因，不随仓库分发）─────────────────────
+# 这是设备虚拟光盘里的华为闭源驱动，包含 Windows 二进制和 Mac kext。
+# 本项目不依赖它，仅作分析留档。请自行从设备上获取。
+MobileWiFi/
+
+# ── 第三方 GPL 二进制（本项目已取代它）───────────────────────
+# usb_modeswitch (GPL-2.0)，当初仅用于分析设备模式切换消息。
+# 如需使用请自行从上游获取：https://github.com/Distrotech/usb-modeswitch
+usb_modeswitch
+usb-modeswitch-*/
+um/
+
+# ── 编译产物 ────────────────────────────────────────────────
+tryswitch
+huawei-switch
+*.o
+*.dSYM/
